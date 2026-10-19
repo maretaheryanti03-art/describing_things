@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Describing Things - SMK Muhammadiyah Jati</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #f59e0b;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, var(--primary), #1e40af);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar h2 {
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 15px;
+            margin-top: 0;
+        }
+        .nav-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--secondary);
+            transform: translateX(5px);
+        }
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+        }
+        .section {
+            display: none;
+            background: var(--card);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s;
+        }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        h1, h2, h3 { color: var(--primary); }
+        
+        /* Interactive Theory Elements */
+        .accordion {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .accordion-header {
+            padding: 15px;
+            background: #e0e7ff;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+        .accordion-content {
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+        .accordion.active .accordion-content {
+            max-height: 1000px;
+            padding: 15px;
+        }
+        .hover-card {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: help;
+            position: relative;
+        }
+        .hover-card:hover::after {
+            content: attr(data-meaning);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        /* LKPD & Forms */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea { min-height: 100px; resize: vertical; }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+        /* Quiz Drag & Drop */
+        .dnd-container { display: flex; gap: 30px; flex-wrap: wrap; }
+        .drag-items, .drop-zones { flex: 1; min-width: 250px; }
+        .drag-item {
+            background: var(--secondary);
+            color: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: grab;
+            text-align: center;
+        }
+        .drop-zone {
+            border: 2px dashed #9ca3af;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            min-height: 50px;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .drop-zone.over { background: #e0e7ff; border-color: var(--primary); }
+        .drop-zone.correct { background: #d1fae5; border-color: var(--success); }
+        .drop-zone.wrong { background: #fee2e2; border-color: var(--danger); }
+
+        /* Crossword */
+        .crossword-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 40px);
+            gap: 5px;
+            margin: 20px 0;
+        }
+        .cw-cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #333;
+            text-align: center;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        .cw-cell.black { background: #333; border: none; }
+        .cw-cell.correct { background: #d1fae5; }
+
+        /* Evaluation */
+        .question-block {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary);
+        }
+        .option-label {
+            display: block;
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid #e5e7eb;
+        }
+        .option-label:hover { background: #e0e7ff; }
+        .score-board {
+            display: none;
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Print / PDF Styles */
+        @media print {
+            body { background: white; }
+            .sidebar, .no-print, .btn { display: none !important; }
+            .main-content { margin-left: 0; width: 100%; padding: 0; }
+            .section { display: block !important; box-shadow: none; page-break-inside: avoid; }
+            .section:not(#lkpd) { display: none !important; }
+            #lkpd { padding: 0; }
+            input, textarea { border: 1px solid #000 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <div class="sidebar no-print">
+        <h2>Menu Utama</h2>
+        <button class="nav-btn active" onclick="showSection('beranda', this)">🏠 Beranda</button>
+        <button class="nav-btn" onclick="showSection('teori', this)">📖 Teori Dasar</button>
+        <button class="nav-btn" onclick="showSection('lkpd', this)">📝 LKPD</button>
+        <button class="nav-btn" onclick="showSection('quiz', this)">🎮 Quiz</button>
+        <button class="nav-btn" onclick="showSection('evaluasi', this)">🎯 Evaluasi</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- 1. BERANDA -->
+        <div id="beranda" class="section active">
+            <div style="text-align: center; padding: 50px 20px;">
+                <h1 style="font-size: 3em; margin-bottom: 10px;">DESCRIBING THINGS</h1>
+                <h2>Media Pembelajaran Interaktif Bahasa Inggris</h2>
+                <p style="font-size: 1.2em; margin: 30px 0;">Kelas 10 SMK</p>
+                <hr style="width: 50%; margin: 30px auto;">
+                <h3>Disusun Oleh:</h3>
+                <p style="font-size: 1.5em; font-weight: bold; color: var(--secondary);">Mareta Tri Heryanti, S.Pd.</p>
+                <p style="font-size: 1.2em;">SMK Muhammadiyah Jati</p>
+                <p style="margin-top: 40px; font-style: italic; color: #6b7280;">"Learn English, Describe the World!"</p>
+            </div>
+        </div>
+
+        <!-- 2. TEORI DASAR -->
+        <div id="teori" class="section">
+            <h1>📖 Teori Dasar: Describing Things</h1>
+            <p>Mendeskripsikan benda (<i>Describing Things</i>) adalah keterampilan memberikan informasi rinci tentang suatu objek, termasuk ciri fisik, karakteristik, bahan, dan fungsinya. Kita menggunakan <b>Adjectives (Kata Sifat)</b> dan <b>Nouns (Kata Benda)</b>.</p>
+
+            <div class="accordion" onclick="this.classList.toggle('active')">
+                <div class="accordion-header">1. Kategori Adjectives (Klik untuk buka) <span>▼</span></div>
+                <div class="accordion-content">
+                    <p>Ada banyak jenis kata sifat. Arahkan mouse (hover) pada kata untuk melihat artinya:</p>
+                    <p><b>Opinion (Pendapat):</b> 
+                        <span class="hover-card" data-meaning="Indah/Cantik">Beautiful</span>
+                        <span class="hover-card" data-meaning="Menakjubkan">Amazing</span>
+                        <span class="hover-card" data-meaning="Membosankan">Boring</span>
+                    </p>
+                    <p><b>Size & Shape (Ukuran & Bentuk):</b> 
+                        <span class="hover-card" data-meaning="Besar">Huge</span>
+                        <span class="hover-card" data-meaning="Bulat">Round</span>
+                        <span class="hover-card" data-meaning="Ramping">Slim</span>
+                    </p>
+                    <p><b>Material (Bahan):</b> 
+                        <span class="hover-card" data-meaning="Kayu">Wooden</span>
+                        <span class="hover-card" data-meaning="Logam">Metallic</span>
+                        <span class="hover-card" data-meaning="Katun">Cotton</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="accordion" onclick="this.classList.toggle('active')">
+                <div class="accordion-header">2. Urutan Adjectives (OSASCOMP) <span>▼</span></div>
+                <div class="accordion-content">
+                    <p>Jika ada lebih dari satu adjective, kita harus mengikuti aturan <b>OSASCOMP</b>:</p>
+                    <ol>
+                        <li><b>O</b>pinion (Beautiful)</li>
+                        <li><b>S</b>ize (Big)</li>
+                        <li><b>A</b>ge (Old)</li>
+                        <li><b>S</b>hape (Round)</li>
+                        <li><b>C</b>olor (Red)</li>
+                        <li><b>O</b>rigin (Indonesian)</li>
+                        <li><b>M</b>aterial (Wooden)</li>
+                        <li><b>P</b>urpose (Sleeping - sleeping bag)</li>
+                    </ol>
+                    <p><b>Contoh:</b> A <i>beautiful</i> (O) <i>small</i> (S) <i>old</i> (A) <i>wooden</i> (M) box.</p>
+                </div>
+            </div>
+
+            <div class="accordion" onclick="this.classList.toggle('active')">
+                <div class="accordion-header">3. Sentence Patterns (Pola Kalimat) <span>▼</span></div>
+                <div class="accordion-content">
+                    <p><b>Pola 1: Subject + To Be + Adjective</b></p>
+                    <p style="background:#e0e7ff; padding:10px; border-radius:5px;">The smartphone <b>is</b> <i>expensive</i>.</p>
+                    <p><b>Pola 2: Subject + To Be + Adjective + Noun</b></p>
+                    <p style="background:#e0e7ff; padding:10px; border-radius:5px;">It <b>is</b> an <i>expensive smartphone</i>.</p>
+                    <p><b>Pola 3: Subject + Has/Have + Adjective + Noun</b></p>
+                    <p style="background:#e0e7ff; padding:10px; border-radius:5px;">The car <b>has</b> a <i>leather interior</i>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. LKPD -->
+        <div id="lkpd" class="section">
+            <h1>📝 Lembar Kerja Peserta Didik (LKPD)</h1>
+            <div class="no-print" style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <b>📌 Petunjuk:</b> Isi LKPD di bawah ini. Setelah selesai, klik tombol <b>"Save as PDF"</b> untuk menyimpan dan mengumpulkan hasil pekerjaan Anda.
+            </div>
+
+            <h3>A. Identitas Siswa</h3>
+            <div class="form-group">
+                <label>Nama Lengkap:</label>
+                <input type="text" id="lkpd-nama" placeholder="Ketik nama Anda...">
+            </div>
+            <div class="form-group">
+                <label>Kelas / No. Absen:</label>
+                <input type="text" id="lkpd-kelas" placeholder="Contoh: X TKJ 1 / 15">
+            </div>
+
+            <h3>B. Tujuan Pembelajaran</h3>
+            <p>Siswa mampu mengidentifikasi dan menggunakan <i>adjectives</i> (kata sifat) secara tepat sesuai urutan OSASCOMP untuk mendeskripsikan benda di sekitar mereka secara lisan dan tulisan.</p>
+
+            <h3>C. Alat dan Bahan</h3>
+            <ul>
+                <li>1 Benda pribadi favorit (contoh: Tas, Sepatu, Smartphone, atau Buku).</li>
+                <li>Kamus Bahasa Inggris / Fitur terjemahan.</li>
+                <li>Perangkat komputer/HP untuk mengakses media ini.</li>
+            </ul>
+
+            <h3>D. Langkah Kerja & Hasil Pengamatan</h3>
+            <div class="form-group">
+                <label>1. Sebutkan benda yang Anda pilih untuk dideskripsikan:</label>
+                <input type="text" id="lkpd-benda" placeholder="Contoh: My school bag">
+            </div>
+            <div class="form-group">
+                <label>2. Tuliskan 5 Adjectives (Kata Sifat) yang menggambarkan benda tersebut beserta artinya:</label>
+                <textarea id="lkpd-adjectives" placeholder="1. Black (Hitam)&#10;2. Large (Besar)&#10;..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>3. Tuliskan 1 paragraf deskriptif (minimal 4 kalimat) tentang benda tersebut menggunakan pola kalimat yang telah dipelajari!</label>
+                <textarea id="lkpd-paragraf" style="min-height: 150px;" placeholder="My school bag is... It has... I like it because..."></textarea>
+            </div>
+
+            <h3>E. Pertanyaan Refleksi</h3>
+            <div class="form-group">
+                <label>Mengapa urutan adjective (OSASCOMP) itu penting dalam membuat kalimat deskriptif? Jelaskan dengan bahasamu sendiri!</label>
+                <textarea id="lkpd-refleksi"></textarea>
+            </div>
+
+            <button class="btn btn-success no-print" onclick="savePDF()">💾 Save as PDF</button>
+        </div>
+
+        <!-- 4. QUIZ -->
+        <div id="quiz" class="section">
+            <h1>🎮 Quiz Interaktif</h1>
+            
+            <h2>Game 1: Drag & Drop (Match the Adjective to the Noun)</h2>
+            <p>Seret kata sifat di sebelah kiri ke kotak yang sesuai di sebelah kanan!</p>
+            <div class="dnd-container">
+                <div class="drag-items">
+                    <div class="drag-item" draggable="true" data-value="sharp">Sharp</div>
+                    <div class="drag-item" draggable="true" data-value="fluffy">Fluffy</div>
+                    <div class="drag-item" draggable="true" data-value="transparent">Transparent</div>
+                    <div class="drag-item" draggable="true" data-value="delicious">Delicious</div>
+                </div>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-answer="sharp">A Kitchen Knife</div>
+                    <div class="drop-zone" data-answer="fluffy">A Warm Towel</div>
+                    <div class="drop-zone" data-answer="transparent">A Glass Window</div>
+                    <div class="drop-zone" data-answer="delicious">Fried Rice</div>
+                </div>
+            </div>
+            <button class="btn btn-danger no-print" onclick="resetQuiz()">🔄 Reset Game 1</button>
+
+            <hr style="margin: 40px 0;">
+
+            <h2>Game 2: Crossword (Teka-Teki Silang)</h2>
+            <p>Isi huruf yang hilang untuk membentuk kata sifat yang tepat!</p>
+            <p><b>Clues:</b></p>
+            <ul>
+                <li>1. Opposite of "Cold" (4 letters)</li>
+                <li>2. Not soft (4 letters)</li>
+                <li>3. Having a pleasant smell (5 letters)</li>
+            </ul>
+            <div class="crossword-grid">
+                <!-- WARM -->
+                <input type="text" class="cw-cell" maxlength="1" data-correct="W">
+                <input type="text" class="cw-cell" maxlength="1" data-correct="A">
+                <input type="text" class="cw-cell" maxlength="1" data-correct="R">
+                <input type="text" class="cw-cell" maxlength="1" data-correct="M">
+                <div class="cw-cell black"></div>
+                <!-- HARD -->
+                <div class="cw-cell black"></div>
+                <div class="cw-cell black"></div>
+                <input type="text" class="cw-cell" maxlength="1" data-correct="H" style="grid-row: 2; grid-column: 2;">
+                <div class="cw-cell black"></div>
+                <div class="cw-cell black"></div>
+                <input type="text" class="cw-cell" maxlength="1" data-correct="A" style="grid-row: 2; grid-column: 4;">
+                <div class="cw-cell black"></div>
+                <div class="cw-cell black"></div>
+                <input type="text" class="cw-cell" maxlength="1" data-correct="R" style="grid-row: 3; grid-column: 2;">
+                <div class="cw-cell black"></div>
+                <div class="cw-cell black"></div>
+                <input type="text" class="cw-cell" maxlength="1" data-correct="D" style="grid-row: 3; grid-column: 4;">
+                <div class="cw-cell black"></div>
+            </div>
+            <p style="font-size: 12px; color: #666;">*Catatan: Grid TTS disederhanakan untuk kompatibilitas web. Kata: WARM, HARD, SWEET (Isian manual di bawah).</p>
+            <div class="form-group">
+                <label>3. Opposite of "Ugly" (Starts with B, 9 letters):</label>
+                <input type="text" id="cw-word3" placeholder="Ketik jawaban...">
+            </div>
+            <button class="btn btn-primary no-print" onclick="checkCrossword()">Cek Jawaban</button>
+            <button class="btn btn-danger no-print" onclick="resetCrossword()">🔄 Reset TTS</button>
+        </div>
+
+        <!-- 5. EVALUASI -->
+        <div id="evaluasi" class="section">
+            <h1>🎯 Evaluasi Akhir</h1>
+            <div id="eval-instructions" style="background: #fee2e2; padding: 20px; border-radius: 10px; border-left: 5px solid var(--danger);">
+                <h3>⚠️ PETUNJUK PENGERJAAN:</h3>
+                <ol>
+                    <li>Evaluasi terdiri dari <b>10 Soal Pilihan Ganda (HOTS)</b> dan <b>5 Soal Esai</b>.</li>
+                    <li>Skor maksimal adalah <b>100</b> (Pilihan Ganda: 50, Esai: 50).</li>
+                    <li>Kerjakan dengan jujur dan teliti.</li>
+                    <li><b>PERHATIAN:</b> Anda <b>HANYA MEMILIKI SATU KESEMPATAN</b> untuk mengerjakan. Setelah tombol "Kumpulkan" ditekan, Anda <b>TIDAK DAPAT</b> mengulang atau mengubah jawaban.</li>
+                </ol>
+                <button class="btn btn-primary" onclick="startEvaluation()">Saya Mengerti, Mulai Evaluasi</button>
+            </div>
+
+            <form id="eval-form" style="display: none;" onsubmit="submitEvaluation(event)">
+                <h2>Part A: Multiple Choice (HOTS)</h2>
+                
+                <div class="question-block">
+                    <p><b>1.</b> Rina wants to buy a bag made of animal skin. She goes to a leather shop. Which sentence best describes the material of the bag she wants?</p>
+                    <label class="option-label"><input type="radio" name="q1" value="A"> A. She wants a cotton bag.</label>
+                    <label class="option-label"><input type="radio" name="q1" value="B"> B. She wants a metallic bag.</label>
+                    <label class="option-label"><input type="radio" name="q1" value="C"> C. She wants a leather bag.</label>
+                    <label class="option-label"><input type="radio" name="q1" value="D"> D. She wants a wooden bag.</label>
+                    <label class="option-label"><input type="radio" name="q1" value="E"> E. She wants a plastic bag.</label>
+                </div>
+
+                <div class="question-block">
+                    <p><b>2.</b> Look at the adjectives: (1) Indonesian (2) Beautiful (3) Small (4) Wooden. What is the correct order to describe a "craft box"?</p>
+                    <label class="option-label"><input type="radio" name="q2" value="A"> A. 2 - 3 - 1 - 4</label>
+                    <label class="option-label"><input type="radio" name="q2" value="B"> B. 2 - 3 - 4 - 1</label>
+                    <label class="option-label"><input type="radio" name="q2" value="C"> C. 3 - 2 - 1 - 4</label>
+                    <label class="option-label"><input type="radio" name="q2" value="D"> D. 1 - 2 - 3 - 4</label>
+                    <label class="option-label"><input type="radio" name="q2" value="E"> E. 4 - 3 - 2 - 1</label>
+                </div>
+
+                <div class="question-block">
+                    <p><b>3.</b> "The smartphone has a cracked screen and the battery drains quickly." What is the writer's purpose in writing the sentence?</p>
+                    <label class="option-label"><input type="radio" name="q3" value="A"> A. To persuade people to buy the smartphone.</label>
+                    <label class="option-label"><input type="radio" name="q3" value="B"> B. To describe the negative physical characteristics of the smartphone.</label>
+                    <label class="option-label"><input type="radio" name="q3" value="C"> C. To explain how to fix the smartphone.</label>
+                    <label class="option-label"><input type="radio" name="q3" value="D"> D. To tell a story about a new smartphone.</label>
+                    <label class="option-label"><input type="radio" name="q3" value="E"> E. To compare the smartphone with a laptop.</label>
+                </div>
+
+                <div class="question-block">
+                    <p><b>4.</b> Budi: "I lost my pen." <br>Andi: "Is it the ... pen I gave you last week?" <br>Choose the most appropriate adjective to fill in the blank.</p>
+                    <label class="option-label"><input type="radio" name="q4" value="A"> A. Delicious</label>
+                    <label class="option-label"><input type="radio" name="q4" value="B"> B. Fluffy</label>
+                    <label class="option-label"><input type="radio" name="q4" value="C"> C. Transparent</label>
+                    <label class="option-label"><input type="radio" name="q4" value="D"> D. Metallic</label>
+                    <label class="option-label"><input type="radio" name="q4" value="E"> E. Loud</label>
+                </div>
+
+                <div class="question-block">
+                    <p><b>5.</b> Which of the following objects is best described by the adjectives: "Sharp, Stainless, Useful"?</p>
+                    <label class="option-label"><input type="radio" name="q5" value="A"> A. A pillow</label>
+                    <label class="option-label"><input type="radio" name="q5" value="B"> B. A kitchen knife</label>
+                    <label class="option-label"><input type="radio" name="q5" value="C"> C. A glass mirror</label>
+                    <label class="option-label"><input type="radio" name="q5" value="D"> D. A cotton towel</label>
+                    <label class="option-label"><input type="radio" name="q5" value="E"> E. A rubber ball</label>
+                </div>
+
+                <div class="question-block">
+                    <p><b>6.</b> "My grandfather has an antique watch. It is made of pure gold and it still works perfectly." What can we infer about the watch?</p>
+                    <label class="option-label"><input type="radio" name="q6" value="A"> A. It is cheap and new.</label>
+                    <label class="option-label"><input type="radio" name="q6" value="B"> B. It is valuable and old.</label>
+                    <label class="option-label"><input type="radio" name="q6" value="C"> C. It is broken and plastic.</label>
+                    <label class="option-label"><input type="radio" name="q6" value="D"> D. It is heavy and modern.</label>
+                    <label class="option-label"><input type="radio" name="q6" value="E"> E. It is small and useless.</label>
+                </div>
+
+                <div class="question-block">
+                    <p><b>7.</b> If you want to describe a "Sleeping Bag", what is the main function of the object based on its name?</p>
+                    <label class="option-label"><input type="radio" name="q7" value="A"> A. To cut things.</label>
+                    <label class="option-label"><input type="radio" name="q7" value="B"> B. To carry books.</label>
+                    <label class="option-label"><input type="radio" name="q7" value="C"> C. To keep warm while sleeping.</label>
+                    <label class="option-label"><input type="radio" name="q7" value="D"> D. To drink water.</label>
+                    <label class="option-label"><input type="radio" name="q7" value="E"> E. To write on.</label>
+                </div>
+
+                <div class="question-block">
+                    <p><b>8.</b> "The room is very ... because it has no windows and the lights are off."</p>
+                    <label class="option-label"><input type="radio" name="q8" value="A"> A. Bright</label>
+                    <label class="option-label"><input type="radio" name="q8" value="B"> B. Dark</label>
+                    <label class="option-label"><input type="radio" name="q8" value="C"> C. Noisy</label>
+                    <label class="option-label"><input type="radio" name="q8" value="D"> D. Spacious</label>
+                    <label class="option-label"><input type="radio" name="q8" value="E"> E. Colorful</label>
+                </div>
+
+                <div class="question-block">
+                    <p><b>9.</b> Analyze the sentence: "She wore a beautiful, long, red, silk dress." Which word indicates the MATERIAL of the dress?</p>
+                    <label class="option-label"><input type="radio" name="q9" value="A"> A. Beautiful</label>
+                    <label class="option-label"><input type="radio" name="q9" value="B"> B. Long</label>
+                    <label class="option-label"><input type="radio" name="q9" value="C"> C. Red</label>
+                    <label class="option-label"><input type="radio" name="q9" value="D"> D. Silk</label>
+                    <label class="option-label"><input type="radio" name="q9" value="E"> E. Dress</label>
+                </div>
+
+                <div class="question-block">
+                    <p><b>10.</b> Why is it important to use specific adjectives when describing a product for a catalog?</p>
+                    <label class="option-label"><input type="radio" name="q10" value="A"> A. To make the text longer.</label>
+                    <label class="option-label"><input type="radio" name="q10" value="B"> B. To confuse the buyer.</label>
+                    <label class="option-label"><input type="radio" name="q10" value="C"> C. To help the buyer imagine the product's features clearly.</label>
+                    <label class="option-label"><input type="radio" name="q10" value="D"> D. To hide the product's weaknesses.</label>
+                    <label class="option-label"><input type="radio" name="q10" value="E"> E. To make the product look expensive.</label>
+                </div>
+
+                <h2>Part B: Essay</h2>
+                <p><i>Jawablah pertanyaan berikut dengan bahasa Inggris yang baik dan benar!</i></p>
+
+                <div class="question-block">
+                    <p><b>11.</b> Describe your favorite item in your bedroom (at least 3 sentences). Mention its color, size, and material!</p>
+                    <textarea name="essay1" class="essay-input" required></textarea>
+                </div>
+                <div class="question-block">
+                    <p><b>12.</b> Arrange these adjectives into a correct sentence describing a car: (Italian / red / fast / sports / a). Write the full sentence!</p>
+                    <textarea name="essay2" class="essay-input" required></textarea>
+                </div>
+                <div class="question-block">
+                    <p><b>13.</b> What is the difference between describing a person's physical appearance and describing a thing? Give one example for each!</p>
+                    <textarea name="essay3" class="essay-input" required></textarea>
+                </div>
+                <div class="question-block">
+                    <p><b>14.</b> Imagine you are selling a "Smartwatch". Write a short promotional paragraph (3-4 sentences) describing its features using at least 3 adjectives!</p>
+                    <textarea name="essay4" class="essay-input" required></textarea>
+                </div>
+                <div class="question-block">
+                    <p><b>15.</b> Explain why the order of adjectives (OSASCOMP) is important in English grammar. What happens if we say "a red big car" instead of "a big red car"?</p>
+                    <textarea name="essay5" class="essay-input" required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success" id="submit-eval-btn">🚀 Kumpulkan Jawaban</button>
+            </form>
+
+            <div id="score-board" class="score-board">
+                <h2>🎉 Evaluasi Selesai!</h2>
+                <p>Terima kasih telah mengerjakan evaluasi dengan jujur.</p>
+                <h1 style="font-size: 3em; margin: 20px 0;" id="final-score">0</h1>
+                <p>Skor Akhir Anda</p>
+                <p style="margin-top: 20px; font-size: 0.9em;">*Catatan: Skor Esai dihitung berdasarkan kelengkapan kata kunci dan struktur kalimat dasar. Guru dapat melakukan penyesuaian nilai akhir.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- NAVIGATION ---
+        function showSection(id, btn) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // --- LKPD SAVE PDF ---
+        function savePDF() {
+            // Trigger browser print dialog, user can select "Save as PDF"
+            window.print();
+        }
+
+        // --- QUIZ DRAG & DROP ---
+        let draggedItem = null;
+
+        document.querySelectorAll('.drag-item').forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                draggedItem = this;
+                setTimeout(() => this.style.display = 'none', 0);
+            });
+            item.addEventListener('dragend', function(e) {
+                this.style.display = 'block';
+                draggedItem = null;
+            });
+        });
+
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('over');
+            });
+            zone.addEventListener('dragleave', function(e) {
+                this.classList.remove('over');
+            });
+            zone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('over');
+                if (draggedItem) {
+                    this.innerText = draggedItem.innerText;
+                    this.appendChild(draggedItem);
+                    draggedItem.style.display = 'block';
+                    draggedItem.draggable = false;
+                    draggedItem.style.cursor = 'default';
+                    
+                    // Check answer
+                    if (this.getAttribute('data-answer') === draggedItem.getAttribute('data-value')) {
+                        this.classList.add('correct');
+                    } else {
+                        this.classList.add('wrong');
+                    }
+                }
+            });
+        });
+
+        function resetQuiz() {
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('correct', 'wrong');
+                zone.innerText = zone.getAttribute('data-answer') === 'sharp' ? 'A Kitchen Knife' : 
+                                 zone.getAttribute('data-answer') === 'fluffy' ? 'A Warm Towel' :
+                                 zone.getAttribute('data-answer') === 'transparent' ? 'A Glass Window' : 'Fried Rice';
+            });
+            document.querySelectorAll('.drag-item').forEach(item => {
+                item.draggable = true;
+                item.style.cursor = 'grab';
+                document.querySelector('.drag-items').appendChild(item);
+            });
+        }
+
+        // --- QUIZ CROSSWORD ---
+        function checkCrossword() {
+            let allCorrect = true;
+            document.querySelectorAll('.cw-cell:not(.black)').forEach(cell => {
+                if (cell.value.toUpperCase() === cell.getAttribute('data-correct')) {
+                    cell.classList.add('correct');
+                } else {
+                    cell.classList.remove('correct');
+                    allCorrect = false;
+                }
+            });
+            const word3 = document.getElementById('cw-word3').value.toUpperCase();
+            if (word3 === 'BEAUTIFUL') {
+                document.getElementById('cw-word3').style.borderColor = 'green';
+            } else {
+                document.getElementById('cw-word3').style.borderColor = 'red';
+                allCorrect = false;
+            }
+            if(allCorrect) alert("🎉 Selamat! Semua jawaban TTS benar!");
+            else alert("Masih ada jawaban yang salah. Coba lagi!");
+        }
+
+        function resetCrossword() {
+            document.querySelectorAll('.cw-cell:not(.black)').forEach(cell => {
+                cell.value = '';
+                cell.classList.remove('correct');
+            });
+            document.getElementById('cw-word3').value = '';
+            document.getElementById('cw-word3').style.borderColor = '#d1d5db';
+        }
+
+        // --- EVALUASI ---
+        let evaluationSubmitted = false;
+
+        function startEvaluation() {
+            document.getElementById('eval-instructions').style.display = 'none';
+            document.getElementById('eval-form').style.display = 'block';
+        }
+
+        function submitEvaluation(e) {
+            e.preventDefault();
+            if (evaluationSubmitted) return;
+
+            let score = 0;
+            const answers = {
+                q1: 'C', q2: 'B', q3: 'B', q4: 'D', q5: 'B',
+                q6: 'B', q7: 'C', q8: 'B', q9: 'D', q10: 'C'
+            };
+
+            // Grade MC (5 points each)
+            for (let q in answers) {
+                const selected = document.querySelector(`input[name="${q}"]:checked`);
+                if (selected && selected.value === answers[q]) {
+                    score += 5;
+                }
+            }
+
+            // Grade Essay (Basic auto-grading based on word count/keywords, 10 points each)
+            const essays = document.querySelectorAll('.essay-input');
+            essays.forEach(essay => {
+                const text = essay.value.trim().toLowerCase();
+                const words = text.split(/\s+/).length;
+                
+                // Simple logic: If they write at least 10 words and include relevant keywords, give points
+                let essayScore = 0;
+                if (words >= 10) essayScore += 5;
+                if (words >= 20) essayScore += 5;
+                
+                // Keyword checks for specific questions
+                if (text.includes('color') || text.includes('size') || text.includes('material') || text.includes('red') || text.includes('big')) essayScore += 2;
+                if (text.includes('osascomp') || text.includes('order') || text.includes('grammar') || text.includes('adjective')) essayScore += 3;
+                
+                // Cap at 10
+                score += Math.min(essayScore, 10); 
+            });
+
+            // Show Score
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('score-board').style.display = 'block';
+            
+            // Lock Form (No retakes)
+            evaluationSubmitted = true;
+            document.getElementById('submit-eval-btn').disabled = true;
+            document.getElementById('submit-eval-btn').innerText = "✅ Jawaban Terkunci";
+            document.querySelectorAll('#eval-form input, #eval-form textarea').forEach(el => el.disabled = true);
+            
+            // Scroll to score
+            document.getElementById('score-board').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
